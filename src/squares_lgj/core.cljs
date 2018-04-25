@@ -6,6 +6,13 @@
   {:x (rand 500)
    :y (rand 500)})
 
+
+(defn new-enemy []
+  {:x (rand 500)
+   :y (rand 500)
+   :vx (* 5 (rand 1))
+   :vy (* 5 (rand 1))})
+
 (defn setup []
   ; Set frame rate to 30 frames per second.
   (q/frame-rate 30)
@@ -14,8 +21,7 @@
   ; setup function returns initial state. It contains
   ; circle color and position.
   {:player {:x 50 :y 100 :vx 0 :vy 0}
-   :enemies [{:x 0 :y 0 :vx 5 :vy 0}
-             {:x 0 :y 0 :vx 0 :vy 5}]
+   :enemies []
    :candy (new-candy)
    :score 0
    :lost :nothing})
@@ -45,6 +51,12 @@
    :vx (:vx enemy)
    :vy (:vy enemy)})
 
+(defn spawn-enemy [status enemies]
+  (cond
+    (= status :enemy) []
+    (= status :candy) (conj enemies (new-enemy))
+    :default enemies))
+
 (defn update-state [state]
   (let [status  (cond
                   (collision? (:player state) (:candy state)) :candy
@@ -60,7 +72,11 @@
       (update-in $ [:score] (cond
                               (= status :candy) inc
                               (= status :enemy) (fn[a] 0)
-                              :default identity)))))
+                              :default identity))
+      (update-in $ [:enemies] #(spawn-enemy status %))
+      )
+
+    ))
 
 (defn draw-enemy [enemy]
   (apply q/fill enemy-color)
