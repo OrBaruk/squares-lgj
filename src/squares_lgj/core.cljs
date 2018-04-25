@@ -17,6 +17,7 @@
    :enemies [{:x 0 :y 0 :vx 5 :vy 0}
              {:x 0 :y 0 :vx 0 :vy 5}]
    :candy (new-candy)
+   :score 0
    :lost :nothing})
 
 (def player-color [0 255 0])
@@ -33,9 +34,6 @@
     (apply q/fill candy-color)
     (q/rect (:x candy) (:y candy) 10 10))
 
-(defn spawn-candy [state]
-  (assoc-in state [:candy] (new-candy)))
-
 (defn collision? [a b]
   (and
    (< (- (max (:x a) (:x b)) (min (:x a) (:x b))) 10)
@@ -48,18 +46,29 @@
    :vy (:vy enemy)})
 
 (defn update-state [state]
-  (as-> state $
-   (update-in $ [:player] move-square)
-   (update-in $ [:enemies] #(map move-square %))
-   (assoc-in $ [:lost]
-             (cond
-               (collision? (:player $) (:candy $)) :candy
-               (reduce #(or (collision? (:player $) %2) %1) false (:enemies $)) :enemy
-               :default :nothing))))
+  (let [status  (cond
+                  (collision? (:player state) (:candy state)) :candy
+                  (reduce #(or (collision? (:player state) %2) %1) false (:enemies state)) :enemy
+                  :default :nothing)]
+    (as-> state $
+      (update-in $ [:player] move-square)
+      (update-in $ [:enemies] #(map move-square %))
+      (assoc-in $ [:lost] status)
+      (assoc-in $ [:candy] (if (= status :candy)
+                             (new-candy)
+                             (:candy state)))
+      (update-in $ [:score] (cond
+                              (= status :candy) inc
+                              (= status :enemy) (fn[a] 0)
+                              :default identity)))))
 
 (defn draw-enemy [enemy]
   (apply q/fill enemy-color)
   (q/rect (:x enemy) (:y enemy) 10 10))
+
+(defn draw-score [score]
+  (apply q/fill enemy-color)
+  (q/text-num score 255 255))
 
 (defn draw-state [state]
   (condp = (:lost state)
@@ -68,6 +77,7 @@
     :nothing (q/background 245 245 245))
   (draw-player (:player state))
   (draw-candy (:candy state))
+  (draw-score (:score state))
   (count (map draw-enemy (:enemies state))))
 
 (defn on-key-down [state event]
