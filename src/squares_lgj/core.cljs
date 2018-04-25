@@ -13,7 +13,7 @@
   (q/color-mode :hsb)
   ; setup function returns initial state. It contains
   ; circle color and position.
-  {:player {:x 50 :y 100}
+  {:player {:x 50 :y 100 :vx 0 :vy 0}
    :enemies [{:x 0 :y 0 :vx 5 :vy 0}
              {:x 0 :y 0 :vx 0 :vy 5}]
    :candy (new-candy)
@@ -27,31 +27,39 @@
   (let [x (:x player)
         y (:y player)]
     (apply q/fill player-color)
-    (q/rect x y 30 50)))
+    (q/rect x y 10 10)))
 
 (defn draw-candy [candy]
     (apply q/fill candy-color)
-    (q/rect (:x candy) (:y candy) 50 30))
+    (q/rect (:x candy) (:y candy) 10 10))
 
 (defn spawn-candy [state]
   (assoc-in state [:candy] (new-candy)))
 
-(defn move-player [state x y]
-  (assoc-in state [:player]
-            {:x (+ (:x (:player state)) x)
-            :y (+ (:y (:player state)) y)}))
+(defn collision? [a b]
+  (and
+   (< (- (max (:x a) (:x b)) (min (:x a) (:x b))) 10)
+   (< (- (max (:y a) (:y b)) (min (:y a) (:y b))) 10)))
 
-(defn move-enemy [enemy]
+(defn move-square [enemy]
   {:x (mod (+ (:x enemy) (:vx enemy)) 500)
    :y (mod (+ (:y enemy) (:vy enemy)) 500)
    :vx (:vx enemy)
    :vy (:vy enemy)})
 
 (defn update-state [state]
-  {:player (:player state)
-   :enemies (map move-enemy (:enemies state))
-   :candy (new-candy)
-   :lost (:lost state)})
+  ;; (js/console.log (:lost state))
+  (as-> state $
+   (update-in $ [:player] move-square)
+   (update-in $ [:enemies] #(map move-square %))
+   (assoc-in $ [:lost]
+             (cond
+               (collision? (:player $) (:candy $)) :candy
+               ;; (reduce #(or (collision? (:player $) %1) %2) true (:enemies $)) :enemy
+               :default :nothing)
+
+
+   )))
 
 (defn draw-enemy [enemy]
   (apply q/fill enemy-color)
@@ -59,23 +67,29 @@
 
 (defn draw-state [state]
   ; Clear the sketch by filling it with light-grey color.
-  (q/background 240)
+  (condp #(= (:lost state) %)
+    :candy (q/background 0)
+    :enemy (q/background 125)
+    :nothing (q/background 255))
   (draw-player (:player state))
   (draw-candy (:candy state))
   (count (map draw-enemy (:enemies state))))
 
-(defn handle-key
-  [state key]
-  (condp = key
-        :up (move-player state 0 -10)
-        :down (move-player state 0 10)
-        :left (move-player state -10 0)
-        :right (move-player state 10 0)
-        state))
+(defn on-key-down [state event]
+  (case (:key event)
+    (:w :up) (assoc-in state [:player :vy] -5)
+    (:s :down) (assoc-in state [:player :vy] 5)
+    (:a :left) (assoc-in state [:player :vx] -5)
+    (:d :right) (assoc-in state [:player :vx] 5)
+    state))
 
-(defn key-pressed
-  [state event]
-  (handle-key state (:key event)))
+(defn on-key-up [state event]
+  (case (:key event)
+    (:w :up) (assoc-in state [:player :vy] 0)
+    (:s :down) (assoc-in state [:player :vy] 0)
+    (:a :left) (assoc-in state [:player :vx] 0)
+    (:d :right) (assoc-in state [:player :vx] 0)
+    state))
 
 ; this function is called in index.html
 (defn ^:export run-sketch []
@@ -90,7 +104,8 @@
     ; This sketch uses functional-mode middleware.
     ; Check quil wiki for more info about middlewares and particularly
     ; fun-mode.
-    :key-pressed key-pressed
+    :key-pressed on-key-down
+    :key-released on-key-up
     :middleware [m/fun-mode]))
 
 ; uncomment this line to reset the sketch:
