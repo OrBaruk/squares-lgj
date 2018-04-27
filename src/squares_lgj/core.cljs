@@ -5,7 +5,18 @@
 (defn new-candy []
   {:x (rand 500)
    :y (rand 500)})
+(def max-width 500)
+(def max-height 500)
 
+(def square-width 10)
+(def square-height 10)
+
+(def player-color [0 255 0])
+(def candy-color [0 0 255])
+(def enemy-color [255 0 0])
+
+(def min-vel 2)
+(def max-vel 5)
 
 (defn new-enemy []
   {:x (rand 500)
