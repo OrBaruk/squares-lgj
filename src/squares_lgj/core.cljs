@@ -15,11 +15,25 @@
 (def min-vel 2)
 (def max-vel 5)
 
+(defn rand-pos []
+  {:x (rand-int (- max-width square-width))
+   :y (rand-int (- max-height square-height))})
+
+(defn rand-vel []
+  (let [aux (+ (rand-int (- max-vel min-vel)) min-vel)
+        v (if (zero? (rand-int 2))
+                     (- 0 aux)
+                     aux)]
+    (if (zero? (rand-int 2))
+      {:x v :y 0}
+      {:x 0 :y v})))
+
 (defn new-enemy []
-  {:x (rand 500)
-   :y (rand 500)
-   :vx (* 5 (rand 1))
-   :vy (* 5 (rand 1))})
+  {:pos (rand-pos)
+   :vel (rand-vel)})
+
+(defn new-candy []
+  {:pos (rand-pos)})
 
 (defn setup []
   ; Set frame rate to 30 frames per second.
