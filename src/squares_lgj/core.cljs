@@ -2,9 +2,6 @@
   (:require [quil.core :as q :include-macros true]
             [quil.middleware :as m]))
 
-(defn new-candy []
-  {:x (rand 500)
-   :y (rand 500)})
 (def max-width 500)
 (def max-height 500)
 
@@ -31,36 +28,33 @@
   ;; (q/color-mode :hsb)
   ; setup function returns initial state. It contains
   ; circle color and position.
-  {:player {:x 50 :y 100 :vx 0 :vy 0}
+  {:player {:pos {:x 100 :y 100}}
    :enemies []
    :candy (new-candy)
    :score 0
    :lost :nothing})
-
-(def player-color [0 255 0])
-(def candy-color [0 0 255])
-(def enemy-color [255 0 0])
-
-(defn draw-player [player]
-  (let [x (:x player)
-        y (:y player)]
-    (apply q/fill player-color)
-    (q/rect x y 10 10)))
-
-(defn draw-candy [candy]
-    (apply q/fill candy-color)
-    (q/rect (:x candy) (:y candy) 10 10))
-
 (defn collision? [a b]
-  (and
-   (< (- (max (:x a) (:x b)) (min (:x a) (:x b))) 10)
-   (< (- (max (:y a) (:y b)) (min (:y a) (:y b))) 10)))
+  (let [xa (:x (:pos a))
+        ya (:y (:pos a))
+        xb (:x (:pos b))
+        yb (:y (:pos b))]
+    (and
+     (< (- (max xa xb) (min xa xb)) square-width)
+     (< (- (max ya yb) (min ya yb)) square-height))))
 
 (defn move-square [enemy]
-  {:x (mod (+ (:x enemy) (:vx enemy)) 500)
-   :y (mod (+ (:y enemy) (:vy enemy)) 500)
-   :vx (:vx enemy)
-   :vy (:vy enemy)})
+  (let [vx (:x (:vel enemy))
+        vy (:y (:vel enemy))
+        x (:x (:pos enemy))
+        y (:y (:pos enemy))
+        new-x (+ x vx)
+        new-y (+ y vy)
+        new-vel (if (and (<= 0 new-x 490) (<= 0 new-y 490))
+                  (:vel enemy)
+                  {:x (- vx) :y (- vy)})]
+    {:pos {:x (max 0 (min new-x 490))
+           :y (max 0 (min new-y 490))}
+     :vel new-vel}))
 
 (defn spawn-enemy [status enemies]
   (cond
@@ -84,24 +78,26 @@
                               (= status :candy) inc
                               (= status :enemy) (fn[a] 0)
                               :default identity))
-      (update-in $ [:enemies] #(spawn-enemy status %))
-      )
+      (update-in $ [:enemies] #(spawn-enemy status %)))))
 
-    ))
+(defn draw-player [player]
+  (apply q/fill player-color)
+  (q/rect (:x (:pos player)) (:y (:pos player)) square-width square-height))
+
+(defn draw-candy [candy]
+  (apply q/fill candy-color)
+  (q/rect (:x (:pos candy)) (:y (:pos candy)) square-width square-height))
 
 (defn draw-enemy [enemy]
   (apply q/fill enemy-color)
-  (q/rect (:x enemy) (:y enemy) 10 10))
+  (q/rect (:x (:pos enemy)) (:y (:pos enemy)) square-width square-height))
 
 (defn draw-score [score]
   (apply q/fill enemy-color)
   (q/text-num score 255 255))
 
 (defn draw-state [state]
-  (condp = (:lost state)
-    :candy (q/background 0 255 255)
-    :enemy (q/background 255 255 0)
-    :nothing (q/background 245 245 245))
+  (q/background 245 245 245)
   (draw-player (:player state))
   (draw-candy (:candy state))
   (draw-score (:score state))
@@ -109,25 +105,25 @@
 
 (defn on-key-down [state event]
   (case (:key event)
-    (:w :up) (assoc-in state [:player :vy] -5)
-    (:s :down) (assoc-in state [:player :vy] 5)
-    (:a :left) (assoc-in state [:player :vx] -5)
-    (:d :right) (assoc-in state [:player :vx] 5)
+    (:w :up) (assoc-in state [:player :vel :y] -5)
+    (:s :down) (assoc-in state [:player :vel :y] 5)
+    (:a :left) (assoc-in state [:player :vel :x] -5)
+    (:d :right) (assoc-in state [:player :vel :x] 5)
     state))
 
 (defn on-key-up [state event]
   (case (:key event)
-    (:w :up) (assoc-in state [:player :vy] 0)
-    (:s :down) (assoc-in state [:player :vy] 0)
-    (:a :left) (assoc-in state [:player :vx] 0)
-    (:d :right) (assoc-in state [:player :vx] 0)
+    (:w :up) (assoc-in state [:player :vel :y] 0)
+    (:s :down) (assoc-in state [:player :vel :y] 0)
+    (:a :left) (assoc-in state [:player :vel :x] 0)
+    (:d :right) (assoc-in state [:player :vel :x] 0)
     state))
 
 ; this function is called in index.html
 (defn ^:export run-sketch []
   (q/defsketch squares-lgj
     :host "squares-lgj"
-    :size [500 500]
+    :size [max-width max-height]
     ; setup function called only once, during sketch initialization.
     :setup setup
     ; update-state is called on each iteration before draw-state.
