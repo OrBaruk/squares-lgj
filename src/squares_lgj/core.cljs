@@ -76,13 +76,16 @@
     (= status :candy) (conj enemies (new-enemy))
     :default enemies))
 
+(defn get-player []
+  {:pos {:x (min (q/mouse-x) (- max-width square-width)) :y (min (q/mouse-y) (- max-height square-height))}})
+
 (defn update-state [state]
   (let [status  (cond
                   (collision? (:player state) (:candy state)) :candy
                   (reduce #(or (collision? (:player state) %2) %1) false (:enemies state)) :enemy
                   :default :nothing)]
     (as-> state $
-      (update-in $ [:player] move-square)
+      (assoc-in $ [:player] (get-player))
       (update-in $ [:enemies] #(map move-square %))
       (assoc-in $ [:lost] status)
       (assoc-in $ [:candy] (if (= status :candy)
