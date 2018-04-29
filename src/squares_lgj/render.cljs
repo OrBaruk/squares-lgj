@@ -6,8 +6,8 @@
 
 (def base-unit (/ (min max-height max-width) 100))
 
-(def square-width (* 10 base-unit))
-(def square-height (* 10 base-unit))
+(def square-width (* 5 base-unit))
+(def square-height (* 5 base-unit))
 
 (def player-color [0 0 255])
 (def candy-color [0 255 0])
@@ -32,9 +32,31 @@
   (apply q/fill enemy-color)
   (q/text-num score 255 255))
 
-(defn state [state]
-  (q/background 245 245 245)
+(defn start [state]
+  (apply q/fill enemy-color)
+  (q/text "Squares-LGJ" 255 255)
+  (q/text "click to start" 255 355)
+  state)
+
+(defn playing [state]
   (player (:player state))
   (candy (:candy state))
   (score (:score state))
-  (count (map enemy (:enemies state))))
+  (doseq [e (:enemies state)] (enemy e)))
+
+(defn game-over [state]
+  (apply q/fill enemy-color)
+  (let [score (:score state)
+        max-score (max (:max-score state) score)]
+    (q/text "Game over!" 255 255)
+    (q/text-num score 255 355)
+    (q/text-num max-score 255 455)
+    (assoc-in state [:max-score] max-score)))
+
+(defn state [state]
+  (q/background 245 245 245)
+  (condp = (:mode state)
+    :start (start state)
+    :playing   (playing state)
+    :game-over (game-over state)
+    :default state))

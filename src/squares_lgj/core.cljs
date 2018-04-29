@@ -8,9 +8,10 @@
 (defn setup []
   ; Set frame rate to 30 frames per second.
   (q/frame-rate 30)
+  (q/no-cursor)
   {:player {:pos {:x 100 :y 100}}
    :enemies []
-   :candy (engine/new-candy)
+   :candy (engine/spawn-candy)
    :score 0
    :max-score 0
    :mode :start})
@@ -22,6 +23,5 @@
     :setup setup
     :update engine/update-state
     :draw render/state
-    :key-pressed io/on-key-down
-    :key-released io/on-key-up
+    :mouse-pressed io/handle-mouse
     :middleware [m/fun-mode]))

@@ -4,7 +4,7 @@
             [squares-lgj.render :as render]))
 
 (def min-vel (* 1 render/base-unit))
-(def max-vel (* 3 render/base-unit))
+(def max-vel (* 2 render/base-unit))
 
 (defn rand-pos []
   {:x (rand-int (- render/max-width render/square-width))
@@ -23,7 +23,7 @@
   {:pos (rand-pos)
    :vel (rand-vel)})
 
-(defn new-candy []
+(defn spawn-candy []
   {:pos (rand-pos)})
 
 (defn collision? [a b]
@@ -49,26 +49,36 @@
            :y (max 0 (min new-y 490))}
      :vel new-vel}))
 
-(defn spawn-enemy [status enemies]
+(defn spawn-enemy [event enemies]
   (cond
-    (= status :enemy) []
-    (= status :candy) (conj enemies (new-enemy))
+    (= event :enemy) []
+    (= event :candy) (conj enemies (new-enemy))
     :default enemies))
 
-(defn update-state [state]
-  (let [status  (cond
-                  (collision? (:player state) (:candy state)) :candy
-                  (reduce #(or (collision? (:player state) %2) %1) false (:enemies state)) :enemy
-                  :default :nothing)]
-    (as-> state $
-      (assoc-in $ [:player] (io/get-player))
-      (update-in $ [:enemies] #(map move-square %))
-      (assoc-in $ [:lost] status)
-      (assoc-in $ [:candy] (if (= status :candy)
-                             (new-candy)
+(defn check-collisions [state]
+  (cond
+    (collision? (:player state) (:candy state)) :candy
+    (reduce #(or (collision? (:player state) %2) %1) false (:enemies state)) :enemy
+    :default :nothing))
+
+(defn play [state]
+  (let [event  (check-collisions state)]
+    (-> state
+        (assoc-in [:player] (io/get-player))
+        (assoc-in [:candy] (if (= event :candy)
+                             (spawn-candy)
                              (:candy state)))
-      (update-in $ [:score] (cond
-                              (= status :candy) inc
-                              (= status :enemy) (fn[a] 0)
+        (update-in [:mode] (if (= event :enemy)
+                             (fn [a] :game-over)
+                             identity))
+        (update-in [:enemies] #(map move-square %))
+        (update-in [:score] (cond
+                              (= event :candy) inc
+                              (= event :enemy) (fn[a] 0)
                               :default identity))
-      (update-in $ [:enemies] #(spawn-enemy status %)))))
+        (update-in [:enemies] #(spawn-enemy event %)))))
+
+(defn update-state [state]
+  (if (= :playing (:mode state))
+    (play state)
+    state))
