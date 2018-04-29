@@ -4,7 +4,7 @@ Squares-lgj is a quick game made for the [ithc.io Lisp Game Jam 2018](https://it
 
 Inspired by an old homebrew PSP game made by Globware, [Squarez](http://www.globware.com/psphomebrew_squarez.php)
 
-Collect the green squares, avoid the red ones it's that simple, control using your mouse.
+Collect the green squares and avoid the red ones, it's that simple, control using your mouse.
 
 ## Demo
 A playable online demo is available at https://orbaruk.github.io

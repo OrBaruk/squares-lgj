@@ -53,10 +53,9 @@
      :vel new-vel}))
 
 (defn spawn-enemy [event enemies]
-  (cond
-    (= event :enemy) []
-    (= event :candy) (conj enemies (new-enemy))
-    :default enemies))
+  (condp = event
+    :candy (conj enemies (new-enemy))
+    enemies))
 
 (defn check-collisions [state]
   (cond

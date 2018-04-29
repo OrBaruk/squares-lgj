@@ -10,6 +10,7 @@
     :start (assoc-in state [:mode] :playing)
     :game-over (-> state
                    (assoc-in [:score] 0)
+                   (assoc-in [:enemies] [])
                    (update-in [:max-score] #(max (:score state) %))
                    (assoc-in [:mode] :playing))
     state))

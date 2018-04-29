@@ -9,9 +9,15 @@
 (def square-width (* 5 base-unit))
 (def square-height (* 5 base-unit))
 
-(def player-color [0 0 255])
-(def candy-color [0 255 0])
-(def enemy-color [255 0 0])
+(def white [245 245 245])
+(def black [10 10 10])
+(def red [245 0 0])
+(def green [0 245 0])
+(def blue [0 0 245])
+
+(def player-color blue)
+(def candy-color green)
+(def enemy-color red)
 
 (defn square [square]
   (q/rect (:x (:pos square)) (:y (:pos square)) square-width square-height))
@@ -29,18 +35,21 @@
   (square enemy))
 
 (defn score [score]
-  (apply q/fill [245 245 245])
+  (apply q/fill white)
   (q/text-size 20)
   (q/text "Score" 25 25)
   (q/text-num score 90 25))
 
 (defn start [state]
-  (apply q/fill enemy-color)
-  (q/text-size 40)
-  (q/text "Squares" 160 220)
-  (q/text-size 20)
-  (q/text "Click to start!" 255 355)
-  state)
+  (apply q/fill red)
+  (q/text-size 45)
+  (q/text "Squares" 140 200)
+  (apply q/fill white)
+  (q/text-size 25)
+  (q/text "Click to start" 255 355)
+  (player {:pos {:x 215 :y 330}})
+  (enemy {:pos {:x 320 :y 170}})
+  (candy {:pos {:x 25 :y 25}}))
 
 (defn playing [state]
   (player (:player state))
@@ -49,21 +58,23 @@
   (doseq [e (:enemies state)] (enemy e)))
 
 (defn game-over [state]
-  (apply q/fill enemy-color)
+  (player (:player state))
+  (candy (:candy state))
+  (doseq [e (:enemies state)] (enemy e))
+  (apply q/fill white)
   (let [score (:score state)
         max-score (max (:max-score state) score)]
     (q/text-size 40)
     (q/text "Game over!" 155 255)
     (q/text-size 20)
-    (q/text "Score" 155 355)
-    (q/text-num (:score state) 255 355)
-    (q/text "Max score" 155 455)
-    (q/text-num max-score 255 455)
-    (q/text "Click to start again" 155 555)))
+    (q/text "Score" 205 295)
+    (q/text-num (:score state) 285 295)
+    (q/text "Max" 205 320)
+    (q/text-num max-score 285 320)
+    (q/text "Click to restart" 205 355)))
 
 (defn state [state]
-  (q/background 0 0 0)
-  ;; (js/console.log (:score state) (:max-score state))
+  (q/background 10 10 10)
   (condp = (:mode state)
     :start (start state)
     :playing   (playing state)
