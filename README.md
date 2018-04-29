@@ -1,20 +1,40 @@
 # squares-lgj
 
-A Quil sketch designed to ... well, that part is up to you.
+Squares-lgj is a quick game made for the [ithc.io Lisp Game Jam 2018](https://itch.io/jam/lisp-game-jam-2018) using [clojurescript](https://clojurescript.org/), [figwheel](https://github.com/bhauman/lein-figwheel) and [quill](http://quil.info/)
 
-## Usage
+Inspired by an old homebrew PSP game made by Globware, [Squarez](http://www.globware.com/psphomebrew_squarez.php)
 
-Run `lein figwheel` in your terminal. Wait for a while until you see `Successfully compiled "resources/public/js/main.js"`. Open [localhost:3449](http://localhost:3449) in your browser.
+Collect the green squares, avoid the red ones it's that simple, control using your mouse.
 
-You can use this while developing your sketch. Whenever you save your source files the browser will automatically refresh everything, providing you with quick feedback. For more information about Figwheel, check the [Figwheel repository on GitHub](https://github.com/bhauman/lein-figwheel).
+## Demo
+A playable online demo is available at https://orbaruk.github.io
 
-## Publishing your sketch
+## Running development environment
+Run `lein run figwheel` and open [localhost:3449](http://localhost:3449) in your browser to enjoy fighweel hot reloading goodness.
 
-Before you publish your sketch, run `lein cljsbuild once optimized`. This will compile your code and run Google Closure Compiler with advanced optimizations. Take `resources/public/index.html` and `resources/public/js/main.js` and upload them to server of your choice.
+## Building from source
+
+Run `lein cljsbuild once optimized`, this will generate `resources/public/index.html` and `resources/public/js/main.js` which can be hosted on your server on opened locally on your favorite web browser.
 
 ## License
+MIT License
 
-Copyright © 2017 FIXME
+Copyright (c) 2018 Alexandre Or Cansian Baruque
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
