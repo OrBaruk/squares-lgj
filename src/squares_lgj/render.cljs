@@ -29,13 +29,17 @@
   (square enemy))
 
 (defn score [score]
-  (apply q/fill enemy-color)
-  (q/text-num score 255 255))
+  (apply q/fill [0 0 255])
+  (q/text-size 20)
+  (q/text "Score" 25 25)
+  (q/text-num score 90 25))
 
 (defn start [state]
   (apply q/fill enemy-color)
-  (q/text "Squares-LGJ" 255 255)
-  (q/text "click to start" 255 355)
+  (q/text-size 40)
+  (q/text "Squares" 160 220)
+  (q/text-size 20)
+  (q/text "Click to start!" 255 355)
   state)
 
 (defn playing [state]
@@ -48,13 +52,18 @@
   (apply q/fill enemy-color)
   (let [score (:score state)
         max-score (max (:max-score state) score)]
-    (q/text "Game over!" 255 255)
+    (q/text-size 40)
+    (q/text "Game over!" 155 255)
+    (q/text-size 20)
+    (q/text "Score" 155 355)
     (q/text-num score 255 355)
+    (q/text "Max score" 155 455)
     (q/text-num max-score 255 455)
+    (q/text "Click to start again" 155 555)
     (assoc-in state [:max-score] max-score)))
 
 (defn state [state]
-  (q/background 245 245 245)
+  (q/background 0 0 0)
   (condp = (:mode state)
     :start (start state)
     :playing   (playing state)
