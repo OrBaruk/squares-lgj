@@ -6,9 +6,12 @@
 (def min-vel (* 1 render/base-unit))
 (def max-vel (* 2 render/base-unit))
 
+(def max-x (- render/max-width render/square-width))
+(def max-y (- render/max-height render/square-height))
+
 (defn rand-pos []
-  {:x (rand-int (- render/max-width render/square-width))
-   :y (rand-int (- render/max-height render/square-height))})
+  {:x (rand-int max-x)
+   :y (rand-int max-y)})
 
 (defn rand-vel []
   (let [aux (+ (rand-int (- max-vel min-vel)) min-vel)
@@ -42,11 +45,11 @@
         y (:y (:pos enemy))
         new-x (+ x vx)
         new-y (+ y vy)
-        new-vel (if (and (<= 0 new-x 490) (<= 0 new-y 490))
+        new-vel (if (and (<= 0 new-x max-x) (<= 0 new-y max-y))
                   (:vel enemy)
                   {:x (- vx) :y (- vy)})]
-    {:pos {:x (max 0 (min new-x 490))
-           :y (max 0 (min new-y 490))}
+    {:pos {:x (max 0 (min new-x max-y))
+           :y (max 0 (min new-y max-y))}
      :vel new-vel}))
 
 (defn spawn-enemy [event enemies]
