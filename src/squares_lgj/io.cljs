@@ -8,6 +8,8 @@
 (defn handle-mouse [state]
   (condp = (:mode state)
     :start (assoc-in state [:mode] :playing)
-    :game-over (assoc-in state [:mode] :playing)
-    :playing state
-    :default state))
+    :game-over (-> state
+                   (assoc-in [:score] 0)
+                   (update-in [:max-score] #(max (:score state) %))
+                   (assoc-in [:mode] :playing))
+    state))

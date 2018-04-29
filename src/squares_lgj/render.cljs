@@ -29,7 +29,7 @@
   (square enemy))
 
 (defn score [score]
-  (apply q/fill [0 0 255])
+  (apply q/fill [245 245 245])
   (q/text-size 20)
   (q/text "Score" 25 25)
   (q/text-num score 90 25))
@@ -56,14 +56,14 @@
     (q/text "Game over!" 155 255)
     (q/text-size 20)
     (q/text "Score" 155 355)
-    (q/text-num score 255 355)
+    (q/text-num (:score state) 255 355)
     (q/text "Max score" 155 455)
     (q/text-num max-score 255 455)
-    (q/text "Click to start again" 155 555)
-    (assoc-in state [:max-score] max-score)))
+    (q/text "Click to start again" 155 555)))
 
 (defn state [state]
   (q/background 0 0 0)
+  ;; (js/console.log (:score state) (:max-score state))
   (condp = (:mode state)
     :start (start state)
     :playing   (playing state)

@@ -67,21 +67,20 @@
 (defn play [state]
   (let [event  (check-collisions state)]
     (-> state
-        (assoc-in [:player] (io/get-player))
-        (assoc-in [:candy] (if (= event :candy)
-                             (spawn-candy)
+        (assoc-in [:candy] (condp = event
+                             :candy (spawn-candy)
                              (:candy state)))
-        (update-in [:mode] (if (= event :enemy)
-                             (fn [a] :game-over)
+        (update-in [:mode] (condp = event
+                             :enemy (fn [a] :game-over)
                              identity))
+        (update-in [:score] (condp = event
+                              :candy inc
+                              identity))
+        (assoc-in [:player] (io/get-player))
         (update-in [:enemies] #(map move-square %))
-        (update-in [:score] (cond
-                              (= event :candy) inc
-                              (= event :enemy) (fn[a] 0)
-                              :default identity))
         (update-in [:enemies] #(spawn-enemy event %)))))
 
 (defn update-state [state]
-  (if (= :playing (:mode state))
-    (play state)
+  (condp = (:mode state)
+    :playing (play state)
     state))
