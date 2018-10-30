@@ -10,7 +10,7 @@ Collect the green squares and avoid the red ones, it's that simple, control usin
 A playable online demo is available at https://orbaruk.github.io
 
 ## Running development environment
-Run `lein run figwheel` and open [localhost:3449](http://localhost:3449) in your browser to enjoy fighweel hot reloading goodness.
+Run `lein figwheel` and open [localhost:3449](http://localhost:3449) in your browser to enjoy fighweel hot reloading goodness.
 
 ## Building from source
 
