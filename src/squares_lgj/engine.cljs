@@ -9,9 +9,15 @@
 (def max-x (- render/max-width render/square-width))
 (def max-y (- render/max-height render/square-height))
 
-(defn rand-pos []
-  {:x (rand-int max-x)
-   :y (rand-int max-y)})
+(defn gen-with-constraint [generator constraint]
+  (first (drop-while #(not (constraint %))
+                     (repeatedly generator))))
+
+(defn rand-pos
+  ([] (rand-pos (constantly true) (constantly true)))
+  ([x-pred y-pred]
+   {:x (gen-with-constraint #(rand-int max-x) x-pred)
+    :y (gen-with-constraint #(rand-int max-y) y-pred)}))
 
 (defn rand-vel []
   (let [aux (+ (rand-int (- max-vel min-vel)) min-vel)
@@ -22,9 +28,12 @@
       {:x v :y 0}
       {:x 0 :y v})))
 
-(defn new-enemy []
-  {:pos (rand-pos)
-   :vel (rand-vel)})
+(defn new-enemy [player]
+  (let [{player-x :x  player-y :y} (:pos player)
+        buffer-zone 30]
+    {:pos (rand-pos #(not (< (- player-x buffer-zone) % (+ player-x buffer-zone)))
+                    #(not (< (- player-y buffer-zone) % (+ player-y buffer-zone))))
+     :vel (rand-vel)}))
 
 (defn spawn-candy []
   {:pos (rand-pos)})
