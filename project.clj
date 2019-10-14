@@ -8,7 +8,7 @@
                  [org.clojure/clojurescript "1.10.238"]]
 
   :plugins [[lein-cljsbuild "1.1.7"]
-            [lein-figwheel "0.5.15"]]
+            [lein-figwheel "0.5.18"]]
   :hooks [leiningen.cljsbuild]
 
   :cljsbuild
